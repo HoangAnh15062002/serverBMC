@@ -15,3 +15,14 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# ============================================================
+# Secrets — DO NOT COMMIT
+# ============================================================
+appsettings*.json
+!appsettings.Template.json
+
+# Environment variables
+.env
+.env.*
+!.env.example
