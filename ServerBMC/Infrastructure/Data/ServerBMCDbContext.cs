@@ -25,6 +25,12 @@ public class ServerBMCDbContext : DbContext
     public DbSet<ReportAttachment> ReportAttachments => Set<ReportAttachment>();
     public DbSet<ReportApproval> ReportApprovals => Set<ReportApproval>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    
+    // Dự toán xây dựng
+    public DbSet<Estimate> Estimates => Set<Estimate>();
+    public DbSet<EstimateWorkItem> EstimateWorkItems => Set<EstimateWorkItem>();
+    public DbSet<WorkItemDetail> WorkItemDetails => Set<WorkItemDetail>();
+    public DbSet<CostSummary> CostSummaries => Set<CostSummary>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -229,6 +235,65 @@ public class ServerBMCDbContext : DbContext
             e.HasIndex(x => x.UserId);
             e.HasIndex(x => x.CreatedAt);
             e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ---- Estimates (Dự toán xây dựng)
+        b.Entity<Estimate>(e =>
+        {
+            e.ToTable("Estimates");
+            e.Property(x => x.ProjectName).HasMaxLength(200).IsRequired();
+            e.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            e.HasIndex(x => x.CreatedAt);
+            e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.CostSummary).WithOne(x => x.Estimate)
+                .HasForeignKey<CostSummary>(x => x.EstimateId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ---- EstimateWorkItems
+        b.Entity<EstimateWorkItem>(e =>
+        {
+            e.ToTable("EstimateWorkItems");
+            e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
+            e.Property(x => x.Quantity).HasPrecision(18, 6);
+            e.Property(x => x.MaterialUnitPrice).HasPrecision(18, 4);
+            e.Property(x => x.LaborUnitPrice).HasPrecision(18, 4);
+            e.Property(x => x.MachineUnitPrice).HasPrecision(18, 4);
+            e.Property(x => x.MaterialTotal).HasPrecision(18, 2);
+            e.Property(x => x.LaborTotal).HasPrecision(18, 2);
+            e.Property(x => x.MachineTotal).HasPrecision(18, 2);
+            e.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            e.HasIndex(x => x.EstimateId);
+            e.HasOne(x => x.Estimate).WithMany(x => x.WorkItems)
+                .HasForeignKey(x => x.EstimateId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ---- WorkItemDetails
+        b.Entity<WorkItemDetail>(e =>
+        {
+            e.ToTable("WorkItemDetails");
+            e.Property(x => x.Category).HasMaxLength(20).IsRequired();
+            e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
+            e.Property(x => x.Quantity).HasPrecision(18, 6);
+            e.Property(x => x.UnitPrice).HasPrecision(18, 4);
+            e.Property(x => x.Factor).HasPrecision(8, 4);
+            e.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            e.HasIndex(x => x.WorkItemId);
+            e.HasOne(x => x.WorkItem).WithMany(x => x.Details)
+                .HasForeignKey(x => x.WorkItemId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ---- CostSummaries
+        b.Entity<CostSummary>(e =>
+        {
+            e.ToTable("CostSummaries");
+            e.HasIndex(x => x.EstimateId).IsUnique();
+            
+            // Rate columns need precision
+            e.Property(x => x.GeneralCostRate).HasPrecision(5, 4);
+            e.Property(x => x.OverheadCostRate).HasPrecision(5, 4);
+            e.Property(x => x.UndeterminedCostRate).HasPrecision(5, 4);
+            e.Property(x => x.PreTaxIncomeRate).HasPrecision(5, 4);
+            e.Property(x => x.VatRate).HasPrecision(5, 4);
         });
     }
 }

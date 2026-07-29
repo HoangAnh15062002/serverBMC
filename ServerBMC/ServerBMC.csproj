@@ -31,6 +31,9 @@
 
     <!-- Swagger UI -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
+
+    <!-- Excel Interop -->
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
   </ItemGroup>
 
 </Project>

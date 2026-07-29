@@ -63,7 +63,7 @@ public static class ProjectEndpoints
         return Results.Ok(ApiResponse<PagedResult<object>>.Ok(new PagedResult<object>
         {
             Items = items.Cast<object>().ToList(),
-            Total = total, Page = p.Page, PageSize = p.PageSize
+            Total = total, Page = p.Page ?? 1, PageSize = p.PageSize ?? 20
         }));
     }
 

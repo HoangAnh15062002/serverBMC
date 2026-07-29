@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using ServerBMC.Features.AuditLogs;
 using ServerBMC.Features.Auth;
 using ServerBMC.Features.Categories;
+using ServerBMC.Features.Estimates;
 using ServerBMC.Features.PaymentPlans;
 using ServerBMC.Features.Progress;
 using ServerBMC.Features.Projects;
@@ -15,6 +17,7 @@ using ServerBMC.Infrastructure.Audit;
 using ServerBMC.Infrastructure.Data;
 using ServerBMC.Infrastructure.Errors;
 using ServerBMC.Infrastructure.Security;
+using ServerBMC.Infrastructure.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,8 +52,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtOptions.Issuer,
             ValidAudience = jwtOptions.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
-            ClockSkew = TimeSpan.FromMinutes(1),
-            RoleClaimType = System.Security.Claims.ClaimTypes.Role
+            ClockSkew = TimeSpan.FromMinutes(5),
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
@@ -82,13 +85,20 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
-        BearerFormat = "JWT"
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
     };
     c.AddSecurityDefinition("Bearer", bearerScheme);
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         [bearerScheme] = Array.Empty<string>()
     });
+
+    // Operation filter để thêm security icon vào từng endpoint
+    c.OperationFilter<AuthorizeOperationFilter>();
+
+    // Bỏ required markers
+    c.SchemaFilter<NonRequiredSchemaFilter>();
 });
 
 // ============================================================
@@ -141,6 +151,55 @@ app.UseAuthorization();
 app.MapGet("/", () => Results.Ok(new { app = "ServerBMC", status = "running", version = "v1" }));
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", utc = DateTime.UtcNow }));
 
+// Debug endpoint - decode token
+app.MapGet("/debug/decode", (HttpContext ctx) =>
+{
+    var token = ctx.Request.Headers.Authorization.FirstOrDefault()?.Replace("Bearer ", "");
+    if (string.IsNullOrEmpty(token))
+        return Results.BadRequest("No token");
+
+    try
+    {
+        var parts = token.Split('.');
+        if (parts.Length != 3)
+            return Results.BadRequest("Invalid JWT format");
+
+        string DecodeBase64(string s)
+        {
+            s = s.Replace('-', '+').Replace('_', '/');
+            switch (s.Length % 4)
+            {
+                case 2: s += "=="; break;
+                case 3: s += "="; break;
+            }
+            var bytes = Convert.FromBase64String(s);
+            return System.Text.Encoding.UTF8.GetString(bytes);
+        }
+
+        var payload = DecodeBase64(parts[1]);
+        var json = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(payload);
+
+        return Results.Ok(new
+        {
+            header = DecodeBase64(parts[0]),
+            payload = json.GetProperty("iss").GetString(),
+            aud = json.TryGetProperty("aud", out var aud) ? aud.GetString() : null,
+            sub = json.TryGetProperty("sub", out var sub) ? sub.GetString() : null,
+            exp = json.TryGetProperty("exp", out var exp) ? DateTimeOffset.FromUnixTimeSeconds(exp.GetInt64()) : (DateTimeOffset?)null,
+            iat = json.TryGetProperty("iat", out var iat) ? DateTimeOffset.FromUnixTimeSeconds(iat.GetInt64()) : (DateTimeOffset?)null,
+            now = DateTimeOffset.UtcNow,
+            roles = json.TryGetProperty("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", out var role) 
+                ? role.GetString() 
+                : "NO ROLE CLAIM",
+            rawPayload = payload
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.BadRequest($"Error: {ex.Message}");
+    }
+}).ExcludeFromDescription();
+
 app.MapAuthEndpoints();
 app.MapProjectEndpoints();
 app.MapCategoryEndpoints();
@@ -149,5 +208,7 @@ app.MapProgressEndpoints();
 app.MapPaymentPlanEndpoints();
 app.MapReportEndpoints();
 app.MapAuditLogEndpoints();
+app.MapEstimateEndpoints();
+app.MapExcelImportEndpoints();
 
 app.Run();

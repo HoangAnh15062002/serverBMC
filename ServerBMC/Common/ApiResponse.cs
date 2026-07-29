@@ -16,14 +16,14 @@ public class ApiResponse<T>
 
 public class PagedRequest
 {
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 20;
+    public int? Page { get; set; } = 1;
+    public int? PageSize { get; set; } = 20;
     public string? Search { get; set; }
     public string? SortBy { get; set; }
-    public bool SortDesc { get; set; } = false;
+    public bool? SortDesc { get; set; } = false;
 
-    public int Skip => (Math.Max(1, Page) - 1) * Math.Clamp(PageSize, 1, 200);
-    public int Take => Math.Clamp(PageSize, 1, 200);
+    public int Skip => (Math.Max(1, Page ?? 1) - 1) * Math.Clamp(PageSize ?? 20, 1, 200);
+    public int Take => Math.Clamp(PageSize ?? 20, 1, 200);
 }
 
 public class PagedResult<T>
