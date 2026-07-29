@@ -40,7 +40,6 @@ public static class ProjectEndpoints
         string? status,
         ServerBMCDbContext db, CancellationToken ct)
     {
-        var q = db.ProjectLots.Where(l => l.ProjectId == 0).Select(l => l.ProjectId); // dummy to keep compiler happy
         var query = db.Projects.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(status)) query = query.Where(x => x.Status == status);
         if (!string.IsNullOrWhiteSpace(p.Search))

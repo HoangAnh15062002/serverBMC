@@ -20,7 +20,7 @@ public class PagedRequest
     public int PageSize { get; set; } = 20;
     public string? Search { get; set; }
     public string? SortBy { get; set; }
-    public bool SortDesc { get; set; }
+    public bool SortDesc { get; set; } = false;
 
     public int Skip => (Math.Max(1, Page) - 1) * Math.Clamp(PageSize, 1, 200);
     public int Take => Math.Clamp(PageSize, 1, 200);

@@ -109,6 +109,18 @@ builder.Services.AddCors(opt =>
 // ============================================================
 var app = builder.Build();
 
+// ============================================================
+// Seed data (roles, users, sample projects)
+// ============================================================
+try
+{
+    await DataSeeder.SeedAsync(app.Services);
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "Seed data failed — continuing startup (DB may not be reachable yet)");
+}
+
 app.UseGlobalExceptionHandler();
 
 // Swagger UI (luôn bật để demo; production nên đặt sau auth)
