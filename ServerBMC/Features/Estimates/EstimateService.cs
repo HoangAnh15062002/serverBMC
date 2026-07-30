@@ -69,14 +69,19 @@ public class EstimateService
                     var detail = new EstimateItemDetail
                     {
                         EstimateItemId = item.Id,
-                        Category = detDto.Category,
+                        DetailType = detDto.Category,
                         Code = detDto.Code,
                         Name = detDto.Name,
                         Unit = detDto.Unit,
                         Quantity = detDto.Quantity,
                         UnitPrice = detDto.UnitPrice,
                         Factor = detDto.Factor,
-                        TotalAmount = detDto.Quantity * detDto.UnitPrice * detDto.Factor
+                        TotalAmount = detDto.Quantity * detDto.UnitPrice * detDto.Factor,
+                        FuelCost = detDto.FuelCost,
+                        EnergyCost = detDto.EnergyCost,
+                        OperatorLaborCost = detDto.OperatorLaborCost,
+                        DepreciationCost = detDto.DepreciationCost,
+                        RepairCost = detDto.RepairCost
                     };
                     _db.EstimateItemDetails.Add(detail);
                 }
@@ -106,9 +111,9 @@ public class EstimateService
             .Where(x => x.EstimateItemId == item.Id)
             .ToList();
 
-        item.MaterialTotal = details.Where(x => x.Category == CAT_MATERIAL).Sum(x => x.TotalAmount);
-        item.LaborTotal = details.Where(x => x.Category == CAT_LABOR).Sum(x => x.TotalAmount);
-        item.MachineTotal = details.Where(x => x.Category == CAT_MACHINE).Sum(x => x.TotalAmount);
+        item.MaterialTotal = details.Where(x => x.DetailType == CAT_MATERIAL).Sum(x => x.TotalAmount);
+        item.LaborTotal = details.Where(x => x.DetailType == CAT_LABOR).Sum(x => x.TotalAmount);
+        item.MachineTotal = details.Where(x => x.DetailType == CAT_MACHINE).Sum(x => x.TotalAmount);
         item.TotalAmount = item.MaterialTotal + item.LaborTotal + item.MachineTotal;
 
         if (item.Quantity > 0)
@@ -278,14 +283,19 @@ public class EstimateService
                 Details = w.Details.Select(d => new EstimateItemDetailDto
                 {
                     Id = d.Id,
-                    Category = d.Category,
+                    Category = d.DetailType,
                     Code = d.Code,
                     Name = d.Name,
                     Unit = d.Unit,
                     Quantity = d.Quantity,
                     UnitPrice = d.UnitPrice,
                     Factor = d.Factor,
-                    TotalAmount = d.TotalAmount
+                    TotalAmount = d.TotalAmount,
+                    FuelCost = d.FuelCost,
+                    EnergyCost = d.EnergyCost,
+                    OperatorLaborCost = d.OperatorLaborCost,
+                    DepreciationCost = d.DepreciationCost,
+                    RepairCost = d.RepairCost
                 }).ToList()
             }).ToList(),
             CostSummary = e.CostSummary == null ? null : new CostSummaryDto
@@ -506,7 +516,7 @@ public class EstimateService
                 var detail = new EstimateItemDetail
                 {
                     EstimateItemId = currentItemId.Value,
-                    Category = catType,
+                    DetailType = catType,
                     Code = GetCellValue(ws, r, 2),
                     Name = category,
                     Unit = GetCellValue(ws, r, 4),

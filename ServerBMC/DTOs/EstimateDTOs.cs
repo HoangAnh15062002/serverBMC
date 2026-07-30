@@ -73,7 +73,7 @@ public class EstimateItemDto
 public class EstimateItemDetailDto
 {
     public int Id { get; set; }
-    public string Category { get; set; } = string.Empty; // a) Vật liệu, b) Nhân công, c) Máy
+    public string Category { get; set; } = string.Empty; // Lưu trữ DetailType ("Vật liệu", "Nhân công", "Máy")
     public string Code { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Unit { get; set; } = string.Empty;
@@ -81,48 +81,8 @@ public class EstimateItemDetailDto
     public decimal UnitPrice { get; set; }
     public decimal Factor { get; set; }
     public decimal TotalAmount { get; set; }
-    public List<ItemMaterialDetailDto> MaterialDetails { get; set; } = new();
-    public List<ItemLaborDetailDto> LaborDetails { get; set; } = new();
-    public List<ItemMachineDetailDto> MachineDetails { get; set; } = new();
-}
 
-public class ItemMaterialDetailDto
-{
-    public int Id { get; set; }
-    public int? MaterialSummaryId { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Unit { get; set; } = string.Empty;
-    public decimal Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal Factor { get; set; }
-    public decimal TotalAmount { get; set; }
-}
-
-public class ItemLaborDetailDto
-{
-    public int Id { get; set; }
-    public int? LaborSummaryId { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Unit { get; set; } = string.Empty;
-    public decimal Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal Factor { get; set; }
-    public decimal TotalAmount { get; set; }
-}
-
-public class ItemMachineDetailDto
-{
-    public int Id { get; set; }
-    public int? MachineSummaryId { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Unit { get; set; } = string.Empty;
-    public decimal Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal Factor { get; set; }
-    public decimal TotalAmount { get; set; }
+    // Chi tiết 5 chi phí máy
     public decimal FuelCost { get; set; }
     public decimal EnergyCost { get; set; }
     public decimal OperatorLaborCost { get; set; }
@@ -185,6 +145,13 @@ public class CreateEstimateItemDetailDto
     public decimal Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal Factor { get; set; } = 1.0m;
+
+    // Chi tiết 5 chi phí máy
+    public decimal FuelCost { get; set; }
+    public decimal EnergyCost { get; set; }
+    public decimal OperatorLaborCost { get; set; }
+    public decimal DepreciationCost { get; set; }
+    public decimal RepairCost { get; set; }
 }
 
 public class UpdateEstimateDto

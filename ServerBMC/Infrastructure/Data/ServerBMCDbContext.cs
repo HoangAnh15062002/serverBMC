@@ -41,10 +41,7 @@ public class ServerBMCDbContext : DbContext
     public DbSet<PriceInput> PriceInputs => Set<PriceInput>();
     public DbSet<MaterialNorm> MaterialNorms => Set<MaterialNorm>();
 
-    // ItemDetail con
-    public DbSet<ItemMaterialDetail> ItemMaterialDetails => Set<ItemMaterialDetail>();
-    public DbSet<ItemLaborDetail> ItemLaborDetails => Set<ItemLaborDetail>();
-    public DbSet<ItemMachineDetail> ItemMachineDetails => Set<ItemMachineDetail>();
+
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -78,6 +75,7 @@ public class ServerBMCDbContext : DbContext
         });
 
         // ---- Projects
+        // ---- Projects
         b.Entity<Project>(e =>
         {
             e.ToTable("Projects");
@@ -85,6 +83,12 @@ public class ServerBMCDbContext : DbContext
             e.HasIndex(x => x.ProjectCode).IsUnique();
             e.HasIndex(x => x.Status);
             e.Property(x => x.ContractValue).HasPrecision(18, 2);
+            e.Property(x => x.TotalEstimateValue).HasPrecision(18, 2);
+            e.Property(x => x.GuaranteeValue).HasPrecision(18, 2);
+            e.Property(x => x.ContractNumber).HasMaxLength(100);
+            e.Property(x => x.DesignUnit).HasMaxLength(200);
+            e.Property(x => x.SupervisionUnit).HasMaxLength(200);
+            e.Property(x => x.ProjectManager).HasMaxLength(100);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -95,6 +99,7 @@ public class ServerBMCDbContext : DbContext
             e.HasIndex(x => new { x.ProjectId, x.LotCode }).IsUnique();
             e.HasIndex(x => x.ProjectId);
             e.Property(x => x.Area).HasPrecision(18, 4);
+            e.Property(x => x.ContractValue).HasPrecision(18, 2);
             e.HasOne(x => x.Project).WithMany(x => x.Lots)
                 .HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
@@ -107,6 +112,8 @@ public class ServerBMCDbContext : DbContext
             e.HasIndex(x => new { x.ProjectLotId, x.CategoryCode }).IsUnique();
             e.HasIndex(x => x.ProjectLotId);
             e.Property(x => x.ProgressPercent).HasPrecision(5, 2);
+            e.Property(x => x.Weight).HasPrecision(5, 2);
+            e.Property(x => x.PlannedCost).HasPrecision(18, 2);
             e.HasOne(x => x.ProjectLot).WithMany(x => x.Categories)
                 .HasForeignKey(x => x.ProjectLotId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
@@ -119,6 +126,8 @@ public class ServerBMCDbContext : DbContext
             e.HasIndex(x => new { x.CategoryId, x.SubCategoryCode }).IsUnique();
             e.HasIndex(x => x.CategoryId);
             e.Property(x => x.ProgressPercent).HasPrecision(5, 2);
+            e.Property(x => x.Weight).HasPrecision(5, 2);
+            e.Property(x => x.PlannedCost).HasPrecision(18, 2);
             e.HasOne(x => x.Category).WithMany(x => x.SubCategories)
                 .HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
@@ -132,9 +141,14 @@ public class ServerBMCDbContext : DbContext
             e.HasIndex(x => x.SubCategoryId);
             e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
             e.Property(x => x.StandardQuantity).HasPrecision(18, 6);
-            e.Property(x => x.MaterialNorm).HasPrecision(18, 6);
-            e.Property(x => x.LaborNorm).HasPrecision(18, 6);
-            e.Property(x => x.MachineNorm).HasPrecision(18, 6);
+            
+            e.Property(x => x.ContractQuantity).HasPrecision(18, 6);
+            e.Property(x => x.ContractUnitPrice).HasPrecision(18, 4);
+            e.Property(x => x.BidMaterialPrice).HasPrecision(18, 4);
+            e.Property(x => x.BidLaborPrice).HasPrecision(18, 4);
+            e.Property(x => x.BidMachinePrice).HasPrecision(18, 4);
+            e.Property(x => x.NormCode).HasMaxLength(50);
+
             e.HasOne(x => x.SubCategory).WithMany(x => x.ProjectWorkItems)
                 .HasForeignKey(x => x.SubCategoryId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
@@ -163,9 +177,15 @@ public class ServerBMCDbContext : DbContext
             e.HasIndex(x => x.WorkItemId);
             e.HasIndex(x => x.CostDate);
             e.HasIndex(x => x.CostType);
+            e.HasIndex(x => x.MaterialSummaryId);
+            e.HasIndex(x => x.LotId);
+            e.HasIndex(x => x.CategoryId);
             e.HasOne(x => x.WorkItem).WithMany(x => x.ActualCosts)
                 .HasForeignKey(x => x.WorkItemId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.MaterialSummary).WithMany().HasForeignKey(x => x.MaterialSummaryId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.Lot).WithMany().HasForeignKey(x => x.LotId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Category).WithMany(x => x.ActualCosts).HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ---- AcceptedQuantities
@@ -190,14 +210,21 @@ public class ServerBMCDbContext : DbContext
             e.HasOne(x => x.Category).WithMany(x => x.Progresses)
                 .HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Verifier).WithMany().HasForeignKey(x => x.VerifiedBy).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ---- Warnings
         b.Entity<Warning>(e =>
         {
             e.ToTable("Warnings");
-            e.HasOne(x => x.Project).WithMany().HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(x => x.CategoryId);
+            e.HasIndex(x => x.WorkItemId);
+            e.HasIndex(x => x.LotId);
+            e.HasOne(x => x.Project).WithMany(x => x.Warnings).HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Resolver).WithMany().HasForeignKey(x => x.ResolvedBy).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.Category).WithMany(x => x.Warnings).HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.WorkItem).WithMany(x => x.Warnings).HasForeignKey(x => x.WorkItemId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.Lot).WithMany().HasForeignKey(x => x.LotId).OnDelete(DeleteBehavior.SetNull);
         });
 
         // ---- PaymentPlans
@@ -206,6 +233,9 @@ public class ServerBMCDbContext : DbContext
             e.ToTable("PaymentPlans");
             e.Property(x => x.PlanAmount).HasPrecision(18, 2);
             e.Property(x => x.ActualAmount).HasPrecision(18, 2);
+            e.Property(x => x.PaymentType).HasMaxLength(50).IsRequired();
+            e.Property(x => x.PaymentMethod).HasMaxLength(50);
+            e.Property(x => x.BankAccount).HasMaxLength(100);
             e.HasOne(x => x.Project).WithMany(x => x.PaymentPlans)
                 .HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
@@ -257,8 +287,11 @@ public class ServerBMCDbContext : DbContext
             e.ToTable("EstimateCategories");
             e.Property(x => x.Name).HasMaxLength(100).IsRequired();
             e.HasIndex(x => x.ProjectId);
+            e.HasIndex(x => x.ProjectLotId);
             e.HasOne(x => x.Project).WithMany()
                 .HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.ProjectLot).WithMany()
+                .HasForeignKey(x => x.ProjectLotId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -267,11 +300,18 @@ public class ServerBMCDbContext : DbContext
         {
             e.ToTable("Estimates");
             e.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            e.HasIndex(x => x.ProjectId);
+            e.HasIndex(x => x.ProjectLotId);
             e.HasIndex(x => x.EstimateCategoryId);
             e.HasIndex(x => x.CreatedAt);
+            e.HasOne(x => x.Project).WithMany(x => x.Estimates)
+                .HasForeignKey(x => x.ProjectId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.ProjectLot).WithMany(x => x.Estimates)
+                .HasForeignKey(x => x.ProjectLotId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.EstimateCategory).WithMany(x => x.Estimates)
                 .HasForeignKey(x => x.EstimateCategoryId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Creator).WithMany().HasForeignKey(x => x.CreatedBy).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.Approver).WithMany().HasForeignKey(x => x.ApprovedBy).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.CostSummary).WithOne(x => x.Estimate)
                 .HasForeignKey<CostSummary>(x => x.EstimateId).OnDelete(DeleteBehavior.Cascade);
         });
@@ -298,71 +338,26 @@ public class ServerBMCDbContext : DbContext
         b.Entity<EstimateItemDetail>(e =>
         {
             e.ToTable("EstimateItemDetails");
-            e.Property(x => x.Category).HasMaxLength(20).IsRequired();
+            e.Property(x => x.DetailType).HasMaxLength(20).IsRequired();
             e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
             e.Property(x => x.Quantity).HasPrecision(18, 6);
             e.Property(x => x.UnitPrice).HasPrecision(18, 4);
             e.Property(x => x.Factor).HasPrecision(8, 4);
-            e.Property(x => x.TotalAmount).HasPrecision(18, 2);
-            e.HasIndex(x => x.EstimateItemId);
-            e.HasOne(x => x.EstimateItem).WithMany(x => x.Details)
-                .HasForeignKey(x => x.EstimateItemId).OnDelete(DeleteBehavior.Cascade);
-        });
-
-        // ---- ItemMaterialDetails
-        b.Entity<ItemMaterialDetail>(e =>
-        {
-            e.ToTable("ItemMaterialDetails");
-            e.HasIndex(x => x.ItemDetailId);
-            e.HasIndex(x => x.MaterialSummaryId);
-            e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
-            e.Property(x => x.Quantity).HasPrecision(18, 6);
-            e.Property(x => x.UnitPrice).HasPrecision(18, 4);
-            e.Property(x => x.Factor).HasPrecision(5, 4);
-            e.Property(x => x.TotalAmount).HasPrecision(18, 2);
-            e.HasOne(x => x.ItemDetail).WithMany(x => x.MaterialDetails)
-                .HasForeignKey(x => x.ItemDetailId).OnDelete(DeleteBehavior.Cascade);
-            e.HasOne(x => x.MaterialSummary).WithMany()
-                .HasForeignKey(x => x.MaterialSummaryId).OnDelete(DeleteBehavior.SetNull);
-        });
-
-        // ---- ItemLaborDetails
-        b.Entity<ItemLaborDetail>(e =>
-        {
-            e.ToTable("ItemLaborDetails");
-            e.HasIndex(x => x.ItemDetailId);
-            e.HasIndex(x => x.LaborSummaryId);
-            e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
-            e.Property(x => x.Quantity).HasPrecision(18, 6);
-            e.Property(x => x.UnitPrice).HasPrecision(18, 4);
-            e.Property(x => x.Factor).HasPrecision(5, 4);
-            e.Property(x => x.TotalAmount).HasPrecision(18, 2);
-            e.HasOne(x => x.ItemDetail).WithMany(x => x.LaborDetails)
-                .HasForeignKey(x => x.ItemDetailId).OnDelete(DeleteBehavior.Cascade);
-            e.HasOne(x => x.LaborSummary).WithMany()
-                .HasForeignKey(x => x.LaborSummaryId).OnDelete(DeleteBehavior.SetNull);
-        });
-
-        // ---- ItemMachineDetails
-        b.Entity<ItemMachineDetail>(e =>
-        {
-            e.ToTable("ItemMachineDetails");
-            e.HasIndex(x => x.ItemDetailId);
-            e.HasIndex(x => x.MachineSummaryId);
-            e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
-            e.Property(x => x.Quantity).HasPrecision(18, 6);
-            e.Property(x => x.UnitPrice).HasPrecision(18, 4);
-            e.Property(x => x.Factor).HasPrecision(5, 4);
             e.Property(x => x.TotalAmount).HasPrecision(18, 2);
             e.Property(x => x.FuelCost).HasPrecision(18, 4);
             e.Property(x => x.EnergyCost).HasPrecision(18, 4);
             e.Property(x => x.OperatorLaborCost).HasPrecision(18, 4);
             e.Property(x => x.DepreciationCost).HasPrecision(18, 4);
             e.Property(x => x.RepairCost).HasPrecision(18, 4);
-            e.HasOne(x => x.ItemDetail).WithMany(x => x.MachineDetails)
-                .HasForeignKey(x => x.ItemDetailId).OnDelete(DeleteBehavior.Cascade);
-            e.HasOne(x => x.MachineSummary).WithMany()
-                .HasForeignKey(x => x.MachineSummaryId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(x => x.EstimateItemId);
+            e.HasIndex(x => x.MaterialSummaryId);
+            e.HasIndex(x => x.LaborSummaryId);
+            e.HasIndex(x => x.MachineSummaryId);
+            e.HasOne(x => x.EstimateItem).WithMany(x => x.Details)
+                .HasForeignKey(x => x.EstimateItemId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.MaterialSummary).WithMany().HasForeignKey(x => x.MaterialSummaryId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.LaborSummary).WithMany().HasForeignKey(x => x.LaborSummaryId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.MachineSummary).WithMany().HasForeignKey(x => x.MachineSummaryId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ---- MaterialSummaries
@@ -409,6 +404,7 @@ public class ServerBMCDbContext : DbContext
         {
             e.ToTable("MonthlyPrices");
             e.HasIndex(x => x.EffectiveMonth);
+            e.HasIndex(x => new { x.Code, x.EffectiveMonth }).IsUnique();
             e.Property(x => x.EffectiveMonth).HasMaxLength(7).IsRequired();
             e.Property(x => x.Unit).HasMaxLength(20).IsRequired();
             e.Property(x => x.MonthlyPriceValue).HasPrecision(18, 4);

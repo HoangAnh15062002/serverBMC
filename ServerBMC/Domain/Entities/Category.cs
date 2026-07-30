@@ -14,6 +14,8 @@ public class Category
     public DateTime? ActualStartDate { get; set; }
     public DateTime? ActualEndDate { get; set; }
     public decimal ProgressPercent { get; set; }
+    public decimal? Weight { get; set; }
+    public decimal? PlannedCost { get; set; }
     public string? Description { get; set; }
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -23,4 +25,6 @@ public class Category
     public User Creator { get; set; } = null!;
     public ICollection<SubCategory> SubCategories { get; set; } = new List<SubCategory>();
     public ICollection<Progress> Progresses { get; set; } = new List<Progress>();
+    public ICollection<Warning> Warnings { get; set; } = new List<Warning>();
+    public ICollection<ActualCost> ActualCosts { get; set; } = new List<ActualCost>();
 }

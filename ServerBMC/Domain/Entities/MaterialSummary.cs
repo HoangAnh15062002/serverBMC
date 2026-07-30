@@ -39,6 +39,11 @@ public class MaterialSummary
     [Column(TypeName = "decimal(18,2)")]
     public decimal TotalAmount { get; set; }
 
+    [MaxLength(100)]
+    public string? Category { get; set; } // VatLieu / ThietBi / NhienLieu
+
+    public bool IsActive { get; set; } = true;
+
     [MaxLength(200)]
     public string? Notes { get; set; }
 

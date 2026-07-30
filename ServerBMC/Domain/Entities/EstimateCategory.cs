@@ -16,6 +16,9 @@ public class EstimateCategory
     /// <summary>Thuộc dự án nào</summary>
     public int? ProjectId { get; set; }
 
+    /// <summary>Thuộc lô nào (tùy chọn)</summary>
+    public int? ProjectLotId { get; set; }
+
     /// <summary>Tên hạng mục: bia, móng, thân, …</summary>
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
@@ -36,6 +39,7 @@ public class EstimateCategory
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public Project? Project { get; set; }
+    public ProjectLot? ProjectLot { get; set; }
     public User Creator { get; set; } = null!;
     public ICollection<Estimate> Estimates { get; set; } = new List<Estimate>();
 }

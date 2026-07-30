@@ -37,6 +37,14 @@ public class LaborSummary
     [Column(TypeName = "decimal(18,4)")]
     public decimal UnitPrice { get; set; }
 
+    [MaxLength(100)]
+    public string? LaborGroup { get; set; } // BacThoCo / ThoKyThuat...
+
+    [MaxLength(100)]
+    public string? Region { get; set; }
+
+    public bool IsActive { get; set; } = true;
+
     [MaxLength(200)]
     public string? Notes { get; set; }
 

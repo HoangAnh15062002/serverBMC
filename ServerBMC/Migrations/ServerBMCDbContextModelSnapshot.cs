@@ -72,6 +72,9 @@ namespace ServerBMC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CostDate")
                         .HasColumnType("datetime2");
 
@@ -94,6 +97,12 @@ namespace ServerBMC.Migrations
 
                     b.Property<string>("InvoiceNumber")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("LotId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaterialSummaryId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 6)
@@ -118,11 +127,17 @@ namespace ServerBMC.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("CostDate");
 
                     b.HasIndex("CostType");
 
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("LotId");
+
+                    b.HasIndex("MaterialSummaryId");
 
                     b.HasIndex("WorkItemId");
 
@@ -212,6 +227,10 @@ namespace ServerBMC.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal?>("PlannedCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("PlannedEndDate")
                         .HasColumnType("datetime2");
 
@@ -234,6 +253,10 @@ namespace ServerBMC.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Weight")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
 
@@ -333,15 +356,11 @@ namespace ServerBMC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("Consultant")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<int?>("ApprovedBy")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -364,25 +383,19 @@ namespace ServerBMC.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Investor")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<int>("EstimateCategoryId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("ProjectName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<int?>("ProjectLotId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Scope")
+                    b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
@@ -396,16 +409,78 @@ namespace ServerBMC.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovedBy");
 
                     b.HasIndex("CreatedAt");
 
                     b.HasIndex("CreatedBy");
 
+                    b.HasIndex("EstimateCategoryId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("ProjectLotId");
+
                     b.ToTable("Estimates", (string)null);
                 });
 
-            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateWorkItem", b =>
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProjectLotId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("ProjectLotId");
+
+                    b.ToTable("EstimateCategories", (string)null);
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -473,6 +548,474 @@ namespace ServerBMC.Migrations
                     b.ToTable("EstimateWorkItems", (string)null);
                 });
 
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateItemDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("DepreciationCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("DetailType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("EnergyCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("EstimateItemId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Factor")
+                        .HasPrecision(8, 4)
+                        .HasColumnType("decimal(8,4)");
+
+                    b.Property<decimal>("FuelCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int?>("LaborSummaryId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MachineSummaryId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaterialSummaryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<decimal>("OperatorLaborCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("RepairCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstimateItemId");
+
+                    b.HasIndex("LaborSummaryId");
+
+                    b.HasIndex("MachineSummaryId");
+
+                    b.HasIndex("MaterialSummaryId");
+
+                    b.ToTable("EstimateItemDetails", (string)null);
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.LaborSummary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AverageLaborPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("AverageSalaryFactor")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LaborGroup")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Region")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("SalaryFactor")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("LaborSummaries", (string)null);
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MachineSummary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DepreciationCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("EnergyCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("FuelCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MachineGroup")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("OperatorLaborCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("RepairCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("TotalUnitCost")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("MachineSummaries", (string)null);
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MaterialNorm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Factor")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("LaborLossQuantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("LaborNormValue")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("MachineLossQuantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("MachineNormValue")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("MaterialLossQuantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("MaterialNormValue")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<string>("NormSource")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("NormYear")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("WorkName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("MaterialNorms", (string)null);
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MaterialSummary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AveragePrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("CarFare")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DeliveredPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("Factor")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("MaterialSummaries", (string)null);
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MonthlyPrice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EffectiveMonth")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<decimal>("Factor")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<decimal>("MainPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("MonthlyPriceValue")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("PriceAfterVat")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Region")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("StandardCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("EffectiveMonth");
+
+                    b.HasIndex("Code", "EffectiveMonth")
+                        .IsUnique();
+
+                    b.ToTable("MonthlyPrices", (string)null);
+                });
+
             modelBuilder.Entity("ServerBMC.Domain.Entities.PaymentPlan", b =>
                 {
                     b.Property<int>("Id")
@@ -487,6 +1030,10 @@ namespace ServerBMC.Migrations
 
                     b.Property<DateTime?>("ActualDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("BankAccount")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ContractNumber")
                         .HasColumnType("nvarchar(max)");
@@ -503,9 +1050,21 @@ namespace ServerBMC.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PaymentMethod")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("PaymentStage")
+                        .HasColumnType("int");
+
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("PlanAmount")
                         .HasPrecision(18, 2)
@@ -533,6 +1092,60 @@ namespace ServerBMC.Migrations
                     b.ToTable("PaymentPlans", (string)null);
                 });
 
+            modelBuilder.Entity("ServerBMC.Domain.Entities.PriceInput", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EffectiveMonth")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("InputType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("EffectiveMonth");
+
+                    b.HasIndex("InputType");
+
+                    b.ToTable("PriceInputs", (string)null);
+                });
+
             modelBuilder.Entity("ServerBMC.Domain.Entities.Progress", b =>
                 {
                     b.Property<int>("Id")
@@ -549,6 +1162,9 @@ namespace ServerBMC.Migrations
 
                     b.Property<int>("CreatedBy")
                         .HasColumnType("int");
+
+                    b.Property<string>("Images")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -568,9 +1184,17 @@ namespace ServerBMC.Migrations
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("VerifiedBy")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("VerifiedBy");
 
                     b.HasIndex("CategoryId", "ProgressDate")
                         .IsUnique();
@@ -585,6 +1209,13 @@ namespace ServerBMC.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ContractDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ContractNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("ContractValue")
                         .HasPrecision(18, 2)
@@ -602,8 +1233,16 @@ namespace ServerBMC.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DesignUnit")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("GuaranteeValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Investor")
                         .HasColumnType("nvarchar(max)");
@@ -611,10 +1250,17 @@ namespace ServerBMC.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("MaintenancePeriodMonths")
+                        .HasColumnType("int");
+
                     b.Property<string>("ProjectCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ProjectManager")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ProjectName")
                         .IsRequired()
@@ -629,6 +1275,14 @@ namespace ServerBMC.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SupervisionUnit")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal?>("TotalEstimateValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -657,6 +1311,10 @@ namespace ServerBMC.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
+                    b.Property<decimal?>("ContractValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -665,6 +1323,9 @@ namespace ServerBMC.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("FloorCount")
                         .HasColumnType("int");
@@ -682,6 +1343,9 @@ namespace ServerBMC.Migrations
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -703,6 +1367,88 @@ namespace ServerBMC.Migrations
                         .IsUnique();
 
                     b.ToTable("ProjectLots", (string)null);
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.ProjectWorkItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("BidLaborPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("BidMachinePrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("BidMaterialPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("ContractQuantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal?>("ContractUnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ItemCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("StandardQuantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<int>("SubCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("SubCategoryId");
+
+                    b.HasIndex("SubCategoryId", "ItemCode")
+                        .IsUnique();
+
+                    b.ToTable("WorkItems", (string)null);
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Report", b =>
@@ -911,6 +1657,10 @@ namespace ServerBMC.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal?>("PlannedCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("PlannedEndDate")
                         .HasColumnType("datetime2");
 
@@ -941,6 +1691,10 @@ namespace ServerBMC.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Weight")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
 
@@ -1092,6 +1846,9 @@ namespace ServerBMC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1100,6 +1857,9 @@ namespace ServerBMC.Migrations
 
                     b.Property<bool>("IsResolved")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("LotId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -1125,137 +1885,22 @@ namespace ServerBMC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("WorkItemId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("LotId");
 
                     b.HasIndex("ProjectId");
 
                     b.HasIndex("ResolvedBy");
 
-                    b.ToTable("Warnings", (string)null);
-                });
-
-            modelBuilder.Entity("ServerBMC.Domain.Entities.WorkItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ItemCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("LaborNorm")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal?>("MachineNorm")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal?>("MaterialNorm")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("StandardQuantity")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<int>("SubCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("SubCategoryId");
-
-                    b.HasIndex("SubCategoryId", "ItemCode")
-                        .IsUnique();
-
-                    b.ToTable("WorkItems", (string)null);
-                });
-
-            modelBuilder.Entity("ServerBMC.Domain.Entities.WorkItemDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("Factor")
-                        .HasPrecision(8, 4)
-                        .HasColumnType("decimal(8,4)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<int>("WorkItemId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("WorkItemId");
 
-                    b.ToTable("WorkItemDetails", (string)null);
+                    b.ToTable("Warnings", (string)null);
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.AcceptedQuantity", b =>
@@ -1266,7 +1911,7 @@ namespace ServerBMC.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ServerBMC.Domain.Entities.WorkItem", "WorkItem")
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectWorkItem", "WorkItem")
                         .WithMany("AcceptedQuantities")
                         .HasForeignKey("WorkItemId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1279,19 +1924,40 @@ namespace ServerBMC.Migrations
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.ActualCost", b =>
                 {
+                    b.HasOne("ServerBMC.Domain.Entities.Category", "Category")
+                        .WithMany("ActualCosts")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ServerBMC.Domain.Entities.WorkItem", "WorkItem")
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectLot", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ServerBMC.Domain.Entities.MaterialSummary", "MaterialSummary")
+                        .WithMany()
+                        .HasForeignKey("MaterialSummaryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectWorkItem", "WorkItem")
                         .WithMany("ActualCosts")
                         .HasForeignKey("WorkItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Category");
+
                     b.Navigation("Creator");
+
+                    b.Navigation("Lot");
+
+                    b.Navigation("MaterialSummary");
 
                     b.Navigation("WorkItem");
                 });
@@ -1338,23 +2004,165 @@ namespace ServerBMC.Migrations
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Estimate", b =>
                 {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Approver")
+                        .WithMany()
+                        .HasForeignKey("ApprovedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("ServerBMC.Domain.Entities.EstimateCategory", "EstimateCategory")
+                        .WithMany("Estimates")
+                        .HasForeignKey("EstimateCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ServerBMC.Domain.Entities.Project", "Project")
+                        .WithMany("Estimates")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectLot", "ProjectLot")
+                        .WithMany("Estimates")
+                        .HasForeignKey("ProjectLotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Approver");
+
                     b.Navigation("Creator");
+
+                    b.Navigation("EstimateCategory");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("ProjectLot");
                 });
 
-            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateWorkItem", b =>
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateCategory", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ServerBMC.Domain.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectLot", "ProjectLot")
+                        .WithMany()
+                        .HasForeignKey("ProjectLotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("ProjectLot");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateItem", b =>
                 {
                     b.HasOne("ServerBMC.Domain.Entities.Estimate", "Estimate")
-                        .WithMany("WorkItems")
+                        .WithMany("Items")
                         .HasForeignKey("EstimateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Estimate");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateItemDetail", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.EstimateItem", "EstimateItem")
+                        .WithMany("Details")
+                        .HasForeignKey("EstimateItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ServerBMC.Domain.Entities.LaborSummary", "LaborSummary")
+                        .WithMany()
+                        .HasForeignKey("LaborSummaryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ServerBMC.Domain.Entities.MachineSummary", "MachineSummary")
+                        .WithMany()
+                        .HasForeignKey("MachineSummaryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ServerBMC.Domain.Entities.MaterialSummary", "MaterialSummary")
+                        .WithMany()
+                        .HasForeignKey("MaterialSummaryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("EstimateItem");
+
+                    b.Navigation("LaborSummary");
+
+                    b.Navigation("MachineSummary");
+
+                    b.Navigation("MaterialSummary");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.LaborSummary", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MachineSummary", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MaterialNorm", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MaterialSummary", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.MonthlyPrice", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.PaymentPlan", b =>
@@ -1376,6 +2184,17 @@ namespace ServerBMC.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("ServerBMC.Domain.Entities.PriceInput", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
             modelBuilder.Entity("ServerBMC.Domain.Entities.Progress", b =>
                 {
                     b.HasOne("ServerBMC.Domain.Entities.Category", "Category")
@@ -1390,9 +2209,16 @@ namespace ServerBMC.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Verifier")
+                        .WithMany()
+                        .HasForeignKey("VerifiedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Category");
 
                     b.Navigation("Creator");
+
+                    b.Navigation("Verifier");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Project", b =>
@@ -1423,6 +2249,25 @@ namespace ServerBMC.Migrations
                     b.Navigation("Creator");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.ProjectWorkItem", b =>
+                {
+                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ServerBMC.Domain.Entities.SubCategory", "SubCategory")
+                        .WithMany("ProjectWorkItems")
+                        .HasForeignKey("SubCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Report", b =>
@@ -1508,7 +2353,7 @@ namespace ServerBMC.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ServerBMC.Domain.Entities.WorkItem", "WorkItem")
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectWorkItem", "WorkItem")
                         .WithMany("UnitPrices")
                         .HasForeignKey("WorkItemId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1540,82 +2385,99 @@ namespace ServerBMC.Migrations
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Warning", b =>
                 {
-                    b.HasOne("ServerBMC.Domain.Entities.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
+                    b.HasOne("ServerBMC.Domain.Entities.Category", "Category")
+                        .WithMany("Warnings")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectLot", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ServerBMC.Domain.Entities.Project", "Project")
+                        .WithMany("Warnings")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ServerBMC.Domain.Entities.User", "Resolver")
                         .WithMany()
                         .HasForeignKey("ResolvedBy")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("ServerBMC.Domain.Entities.ProjectWorkItem", "WorkItem")
+                        .WithMany("Warnings")
+                        .HasForeignKey("WorkItemId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Lot");
+
                     b.Navigation("Project");
 
                     b.Navigation("Resolver");
-                });
-
-            modelBuilder.Entity("ServerBMC.Domain.Entities.WorkItem", b =>
-                {
-                    b.HasOne("ServerBMC.Domain.Entities.User", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ServerBMC.Domain.Entities.SubCategory", "SubCategory")
-                        .WithMany("WorkItems")
-                        .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-
-                    b.Navigation("SubCategory");
-                });
-
-            modelBuilder.Entity("ServerBMC.Domain.Entities.WorkItemDetail", b =>
-                {
-                    b.HasOne("ServerBMC.Domain.Entities.EstimateWorkItem", "WorkItem")
-                        .WithMany("Details")
-                        .HasForeignKey("WorkItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("WorkItem");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Category", b =>
                 {
+                    b.Navigation("ActualCosts");
+
                     b.Navigation("Progresses");
 
                     b.Navigation("SubCategories");
+
+                    b.Navigation("Warnings");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Estimate", b =>
                 {
                     b.Navigation("CostSummary");
 
-                    b.Navigation("WorkItems");
+                    b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateWorkItem", b =>
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateCategory", b =>
+                {
+                    b.Navigation("Estimates");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.EstimateItem", b =>
                 {
                     b.Navigation("Details");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Project", b =>
                 {
+                    b.Navigation("Estimates");
+
                     b.Navigation("Lots");
 
                     b.Navigation("PaymentPlans");
 
                     b.Navigation("Reports");
+
+                    b.Navigation("Warnings");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.ProjectLot", b =>
                 {
                     b.Navigation("Categories");
+
+                    b.Navigation("Estimates");
+                });
+
+            modelBuilder.Entity("ServerBMC.Domain.Entities.ProjectWorkItem", b =>
+                {
+                    b.Navigation("AcceptedQuantities");
+
+                    b.Navigation("ActualCosts");
+
+                    b.Navigation("UnitPrices");
+
+                    b.Navigation("Warnings");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.Report", b =>
@@ -1632,21 +2494,12 @@ namespace ServerBMC.Migrations
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.SubCategory", b =>
                 {
-                    b.Navigation("WorkItems");
+                    b.Navigation("ProjectWorkItems");
                 });
 
             modelBuilder.Entity("ServerBMC.Domain.Entities.User", b =>
                 {
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("ServerBMC.Domain.Entities.WorkItem", b =>
-                {
-                    b.Navigation("AcceptedQuantities");
-
-                    b.Navigation("ActualCosts");
-
-                    b.Navigation("UnitPrices");
                 });
 #pragma warning restore 612, 618
         }

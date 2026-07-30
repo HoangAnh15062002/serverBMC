@@ -53,6 +53,13 @@ public class MaterialNorm
     [Column(TypeName = "decimal(18,6)")]
     public decimal MachineLossQuantity { get; set; }
 
+    public int? NormYear { get; set; } // Năm ban hành (e.g. 2021)
+    
+    [MaxLength(200)]
+    public string? NormSource { get; set; } // Nguồn (BXD, địa phương...)
+
+    public bool IsActive { get; set; } = true;
+
     [MaxLength(200)]
     public string? Notes { get; set; }
 

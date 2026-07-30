@@ -9,6 +9,8 @@ public class Estimate
     [Key]
     public int Id { get; set; }
 
+    public int ProjectId { get; set; }
+    public int? ProjectLotId { get; set; }
     public int EstimateCategoryId { get; set; }
 
     [MaxLength(50)]
@@ -26,12 +28,22 @@ public class Estimate
     [MaxLength(200)]
     public string TotalAmountText { get; set; } = string.Empty;
 
+    [MaxLength(50)]
+    public string Status { get; set; } = "NhapDuToan"; // NhapDuToan / DangThamTra / DaDuyet / TuChoi
+    public int Version { get; set; } = 1;
+
+    public int? ApprovedBy { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+
     public int? CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    public Project? Project { get; set; }
+    public ProjectLot? ProjectLot { get; set; }
     public EstimateCategory? EstimateCategory { get; set; }
     public User? Creator { get; set; }
+    public User? Approver { get; set; }
     public ICollection<EstimateItem> Items { get; set; } = new List<EstimateItem>();
     public CostSummary? CostSummary { get; set; }
 }
@@ -82,7 +94,6 @@ public class EstimateItem
     public Estimate? Estimate { get; set; }
     public ICollection<EstimateItemDetail> Details { get; set; } = new List<EstimateItemDetail>();
 }
-
 [Table("EstimateItemDetails")]
 public class EstimateItemDetail
 {
@@ -91,9 +102,13 @@ public class EstimateItemDetail
 
     public int EstimateItemId { get; set; }
 
-    /// <summary>a) Vật liệu, b) Nhân công, c) Máy</summary>
+    /// <summary>VL, NC, May</summary>
     [MaxLength(20)]
-    public string Category { get; set; } = string.Empty;
+    public string DetailType { get; set; } = string.Empty;
+
+    public int? MaterialSummaryId { get; set; }
+    public int? LaborSummaryId { get; set; }
+    public int? MachineSummaryId { get; set; }
 
     [MaxLength(50)]
     public string Code { get; set; } = string.Empty;
@@ -116,10 +131,26 @@ public class EstimateItemDetail
     [Column(TypeName = "decimal(18,2)")]
     public decimal TotalAmount { get; set; }
 
+    // Chi tiết 5 chi phí máy (áp dụng cho DetailType == "May")
+    [Column(TypeName = "decimal(18,4)")]
+    public decimal FuelCost { get; set; }
+
+    [Column(TypeName = "decimal(18,4)")]
+    public decimal EnergyCost { get; set; }
+
+    [Column(TypeName = "decimal(18,4)")]
+    public decimal OperatorLaborCost { get; set; }
+
+    [Column(TypeName = "decimal(18,4)")]
+    public decimal DepreciationCost { get; set; }
+
+    [Column(TypeName = "decimal(18,4)")]
+    public decimal RepairCost { get; set; }
+
     public EstimateItem? EstimateItem { get; set; }
-    public ICollection<ItemMaterialDetail> MaterialDetails { get; set; } = new List<ItemMaterialDetail>();
-    public ICollection<ItemLaborDetail> LaborDetails { get; set; } = new List<ItemLaborDetail>();
-    public ICollection<ItemMachineDetail> MachineDetails { get; set; } = new List<ItemMachineDetail>();
+    public MaterialSummary? MaterialSummary { get; set; }
+    public LaborSummary? LaborSummary { get; set; }
+    public MachineSummary? MachineSummary { get; set; }
 }
 
 [Table("CostSummaries")]

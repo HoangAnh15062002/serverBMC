@@ -47,6 +47,9 @@ public class MonthlyPrice
     [MaxLength(50)]
     public string? StandardCode { get; set; }
 
+    [MaxLength(100)]
+    public string? Region { get; set; } // Vùng áp dụng (Hà Nội, TP.HCM...)
+
     [MaxLength(200)]
     public string? Notes { get; set; }
 

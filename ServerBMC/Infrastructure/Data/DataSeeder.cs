@@ -166,9 +166,9 @@ public static class DataSeeder
         // Sample ItemDetails
         var details = new List<EstimateItemDetail>
         {
-            new() { EstimateItemId = items[0].Id, Category = "Vật liệu", Code = "TT", Name = "Cọc bê tông dự ứng lực D300mm", Unit = "m", Quantity = 1.01m, UnitPrice = 290_000m, Factor = 1.0m, TotalAmount = 1.01m * 290_000m },
-            new() { EstimateItemId = items[1].Id, Category = "Nhân công", Code = "AC.26311", Name = "Nhân công ép cọc", Unit = "công", Quantity = 7.28m, UnitPrice = 2_103_633m, Factor = 1.0m, TotalAmount = 7.28m * 2_103_633m },
-            new() { EstimateItemId = items[1].Id, Category = "Máy", Code = "AC.26311", Name = "Máy ép cọc Robot", Unit = "ca", Quantity = 7.28m, UnitPrice = 16_927_537m, Factor = 1.0m, TotalAmount = 7.28m * 16_927_537m },
+            new() { EstimateItemId = items[0].Id, DetailType = "Vật liệu", Code = "TT", Name = "Cọc bê tông dự ứng lực D300mm", Unit = "m", Quantity = 1.01m, UnitPrice = 290_000m, Factor = 1.0m, TotalAmount = 1.01m * 290_000m },
+            new() { EstimateItemId = items[1].Id, DetailType = "Nhân công", Code = "AC.26311", Name = "Nhân công ép cọc", Unit = "công", Quantity = 7.28m, UnitPrice = 2_103_633m, Factor = 1.0m, TotalAmount = 7.28m * 2_103_633m },
+            new() { EstimateItemId = items[1].Id, DetailType = "Máy", Code = "AC.26311", Name = "Máy ép cọc Robot", Unit = "ca", Quantity = 7.28m, UnitPrice = 16_927_537m, Factor = 1.0m, TotalAmount = 7.28m * 16_927_537m },
         };
         db.EstimateItemDetails.AddRange(details);
         await db.SaveChangesAsync(ct);

@@ -9,7 +9,11 @@ public class PaymentPlan
     public DateTime PlannedDate { get; set; }
     public decimal? ActualAmount { get; set; }
     public DateTime? ActualDate { get; set; }
-    public string PaymentStatus { get; set; } = "Chưa giải ngân"; // TamUng / ThanhToanDot / QuyetToan / BaoHanh / etc.
+    public string PaymentStatus { get; set; } = "Chưa giải ngân";
+    public string PaymentType { get; set; } = "ThanhToanDot"; // TamUng / ThanhToanDot / QuyetToan / BaoLanh / BaoHanh
+    public string? PaymentMethod { get; set; } // ChuyenKhoan / TienMat / ThanhToanBu
+    public string? BankAccount { get; set; }
+    public int? PaymentStage { get; set; }
     public string? ContractNumber { get; set; }
     public string? InvoiceNumber { get; set; }
     public string? Notes { get; set; }

@@ -18,8 +18,22 @@ public class Project
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    // Hợp đồng & Pháp lý
+    public string? ContractNumber { get; set; }
+    public DateTime? ContractDate { get; set; }
+    public decimal? TotalEstimateValue { get; set; }
+    public decimal? GuaranteeValue { get; set; }
+    public int? MaintenancePeriodMonths { get; set; }
+
+    // Các bên liên quan
+    public string? DesignUnit { get; set; }
+    public string? SupervisionUnit { get; set; }
+    public string? ProjectManager { get; set; }
+
     public User Creator { get; set; } = null!;
     public ICollection<ProjectLot> Lots { get; set; } = new List<ProjectLot>();
     public ICollection<PaymentPlan> PaymentPlans { get; set; } = new List<PaymentPlan>();
     public ICollection<Report> Reports { get; set; } = new List<Report>();
+    public ICollection<Estimate> Estimates { get; set; } = new List<Estimate>();
+    public ICollection<Warning> Warnings { get; set; } = new List<Warning>();
 }

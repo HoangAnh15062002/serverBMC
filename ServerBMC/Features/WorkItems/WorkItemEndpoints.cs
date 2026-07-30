@@ -90,9 +90,12 @@ public static class WorkItemEndpoints
             ItemName = dto.ItemName,
             Unit = dto.Unit,
             StandardQuantity = dto.StandardQuantity,
-            MaterialNorm = dto.MaterialNorm,
-            LaborNorm = dto.LaborNorm,
-            MachineNorm = dto.MachineNorm,
+            ContractQuantity = dto.ContractQuantity,
+            ContractUnitPrice = dto.ContractUnitPrice,
+            BidMaterialPrice = dto.BidMaterialPrice,
+            BidLaborPrice = dto.BidLaborPrice,
+            BidMachinePrice = dto.BidMachinePrice,
+            NormCode = dto.NormCode,
             SortOrder = dto.SortOrder,
             Description = dto.Description,
             CreatedBy = userId
@@ -113,13 +116,16 @@ public static class WorkItemEndpoints
     {
         var w = await db.ProjectWorkItems.FirstOrDefaultAsync(x => x.SubCategoryId == subId && x.Id == id, ct);
         if (w is null) return Results.NotFound();
-        var old = new { w.ItemName, w.Unit, w.StandardQuantity };
+        var old = new { w.ItemName, w.Unit, w.StandardQuantity, w.ContractQuantity, w.ContractUnitPrice };
         w.ItemName = dto.ItemName;
         w.Unit = dto.Unit;
         w.StandardQuantity = dto.StandardQuantity;
-        w.MaterialNorm = dto.MaterialNorm;
-        w.LaborNorm = dto.LaborNorm;
-        w.MachineNorm = dto.MachineNorm;
+        w.ContractQuantity = dto.ContractQuantity;
+        w.ContractUnitPrice = dto.ContractUnitPrice;
+        w.BidMaterialPrice = dto.BidMaterialPrice;
+        w.BidLaborPrice = dto.BidLaborPrice;
+        w.BidMachinePrice = dto.BidMachinePrice;
+        w.NormCode = dto.NormCode;
         w.SortOrder = dto.SortOrder;
         if (dto.IsActive.HasValue) w.IsActive = dto.IsActive.Value;
         w.Description = dto.Description;

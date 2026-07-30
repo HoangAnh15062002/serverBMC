@@ -46,6 +46,11 @@ public class MachineSummary
     [Column(TypeName = "decimal(18,4)")]
     public decimal TotalUnitCost { get; set; }
 
+    [MaxLength(100)]
+    public string? MachineGroup { get; set; } // MayDat / MayCau / MayBom...
+
+    public bool IsActive { get; set; } = true;
+
     [MaxLength(200)]
     public string? Notes { get; set; }
 

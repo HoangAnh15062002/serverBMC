@@ -8,9 +8,12 @@ public class WorkItemCreateDto
     [Required, MaxLength(500)] public string ItemName { get; set; } = null!;
     [Required, MaxLength(20)] public string Unit { get; set; } = null!;
     public decimal? StandardQuantity { get; set; }
-    public decimal? MaterialNorm { get; set; }
-    public decimal? LaborNorm { get; set; }
-    public decimal? MachineNorm { get; set; }
+    public decimal? ContractQuantity { get; set; }
+    public decimal? ContractUnitPrice { get; set; }
+    public decimal? BidMaterialPrice { get; set; }
+    public decimal? BidLaborPrice { get; set; }
+    public decimal? BidMachinePrice { get; set; }
+    public string? NormCode { get; set; }
     public int SortOrder { get; set; }
     public string? Description { get; set; }
 }
@@ -20,9 +23,12 @@ public class WorkItemUpdateDto
     [Required, MaxLength(500)] public string ItemName { get; set; } = null!;
     [Required, MaxLength(20)] public string Unit { get; set; } = null!;
     public decimal? StandardQuantity { get; set; }
-    public decimal? MaterialNorm { get; set; }
-    public decimal? LaborNorm { get; set; }
-    public decimal? MachineNorm { get; set; }
+    public decimal? ContractQuantity { get; set; }
+    public decimal? ContractUnitPrice { get; set; }
+    public decimal? BidMaterialPrice { get; set; }
+    public decimal? BidLaborPrice { get; set; }
+    public decimal? BidMachinePrice { get; set; }
+    public string? NormCode { get; set; }
     public int SortOrder { get; set; }
     public bool? IsActive { get; set; }
     public string? Description { get; set; }
@@ -48,6 +54,9 @@ public class ActualCostCreateDto
     public DateTime? InvoiceDate { get; set; }
     public string? Supplier { get; set; }
     public string? Description { get; set; }
+    public int? MaterialSummaryId { get; set; }
+    public int? LotId { get; set; }
+    public int? CategoryId { get; set; }
 }
 
 public class AcceptedQuantityCreateDto

@@ -8,9 +8,14 @@ public class ProjectWorkItem
     public string ItemName { get; set; } = null!;
     public string Unit { get; set; } = null!;
     public decimal? StandardQuantity { get; set; }
-    public decimal? MaterialNorm { get; set; }
-    public decimal? LaborNorm { get; set; }
-    public decimal? MachineNorm { get; set; }
+    
+    public decimal? ContractQuantity { get; set; }
+    public decimal? ContractUnitPrice { get; set; }
+    public decimal? BidMaterialPrice { get; set; }
+    public decimal? BidLaborPrice { get; set; }
+    public decimal? BidMachinePrice { get; set; }
+    public string? NormCode { get; set; }
+
     public int SortOrder { get; set; }
     public bool IsActive { get; set; } = true;
     public string? Description { get; set; }
@@ -23,4 +28,5 @@ public class ProjectWorkItem
     public ICollection<UnitPrice> UnitPrices { get; set; } = new List<UnitPrice>();
     public ICollection<ActualCost> ActualCosts { get; set; } = new List<ActualCost>();
     public ICollection<AcceptedQuantity> AcceptedQuantities { get; set; } = new List<AcceptedQuantity>();
+    public ICollection<Warning> Warnings { get; set; } = new List<Warning>();
 }

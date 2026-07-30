@@ -14,6 +14,8 @@ public class SubCategory
     public DateTime? ActualStartDate { get; set; }
     public DateTime? ActualEndDate { get; set; }
     public decimal ProgressPercent { get; set; }
+    public decimal? Weight { get; set; }
+    public decimal? PlannedCost { get; set; }
     public string? Description { get; set; }
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
