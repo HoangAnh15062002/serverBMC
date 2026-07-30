@@ -57,7 +57,7 @@ public static class WorkItemEndpoints
 
     private static async Task<IResult> ListWorkItemsAsync(int subId, ServerBMCDbContext db, CancellationToken ct)
     {
-        var items = await db.WorkItems.AsNoTracking()
+        var items = await db.ProjectWorkItems.AsNoTracking()
             .Where(w => w.SubCategoryId == subId && w.IsActive)
             .OrderBy(w => w.SortOrder).ThenBy(w => w.Id)
             .ToListAsync(ct);
@@ -66,7 +66,7 @@ public static class WorkItemEndpoints
 
     private static async Task<IResult> GetWorkItemAsync(int subId, int id, ServerBMCDbContext db, CancellationToken ct)
     {
-        var w = await db.WorkItems.AsNoTracking()
+        var w = await db.ProjectWorkItems.AsNoTracking()
             .Include(x => x.UnitPrices)
             .FirstOrDefaultAsync(x => x.SubCategoryId == subId && x.Id == id, ct);
         return w is null ? Results.NotFound() : Results.Ok(ApiResponse<object>.Ok(w));
@@ -79,11 +79,11 @@ public static class WorkItemEndpoints
     {
         if (!await db.SubCategories.AnyAsync(s => s.Id == subId, ct))
             return Results.NotFound(ApiResponse<object>.Fail("Hạng mục phụ không tồn tại"));
-        if (await db.WorkItems.AnyAsync(w => w.SubCategoryId == subId && w.ItemCode == dto.ItemCode, ct))
+        if (await db.ProjectWorkItems.AnyAsync(w => w.SubCategoryId == subId && w.ItemCode == dto.ItemCode, ct))
             return Results.BadRequest(ApiResponse<object>.Fail("Mã đầu mục đã tồn tại"));
 
         var userId = principal.GetUserId();
-        var entity = new Domain.Entities.WorkItem
+        var entity = new Domain.Entities.ProjectWorkItem
         {
             SubCategoryId = subId,
             ItemCode = dto.ItemCode,
@@ -97,7 +97,7 @@ public static class WorkItemEndpoints
             Description = dto.Description,
             CreatedBy = userId
         };
-        db.WorkItems.Add(entity);
+        db.ProjectWorkItems.Add(entity);
         await db.SaveChangesAsync(ct);
         await audit.WriteAsync(db, userId, "Create", "WorkItem", entity.Id, null, entity,
             "Tạo đầu mục công tác", http.Connection.RemoteIpAddress?.ToString(),
@@ -111,7 +111,7 @@ public static class WorkItemEndpoints
         ServerBMCDbContext db, IAuditWriter audit,
         ClaimsPrincipal principal, HttpContext http, CancellationToken ct)
     {
-        var w = await db.WorkItems.FirstOrDefaultAsync(x => x.SubCategoryId == subId && x.Id == id, ct);
+        var w = await db.ProjectWorkItems.FirstOrDefaultAsync(x => x.SubCategoryId == subId && x.Id == id, ct);
         if (w is null) return Results.NotFound();
         var old = new { w.ItemName, w.Unit, w.StandardQuantity };
         w.ItemName = dto.ItemName;
@@ -136,9 +136,9 @@ public static class WorkItemEndpoints
         int subId, int id, ServerBMCDbContext db, IAuditWriter audit,
         ClaimsPrincipal principal, HttpContext http, CancellationToken ct)
     {
-        var w = await db.WorkItems.FirstOrDefaultAsync(x => x.SubCategoryId == subId && x.Id == id, ct);
+        var w = await db.ProjectWorkItems.FirstOrDefaultAsync(x => x.SubCategoryId == subId && x.Id == id, ct);
         if (w is null) return Results.NotFound();
-        db.WorkItems.Remove(w);
+        db.ProjectWorkItems.Remove(w);
         await audit.WriteAsync(db, principal.GetUserId(), "Delete", "WorkItem", id, w, null,
             "Xóa đầu mục", http.Connection.RemoteIpAddress?.ToString(),
             http.Request.Headers.UserAgent.ToString(), ct);
@@ -162,7 +162,7 @@ public static class WorkItemEndpoints
         ServerBMCDbContext db, IAuditWriter audit,
         ClaimsPrincipal principal, HttpContext http, CancellationToken ct)
     {
-        if (!await db.WorkItems.AnyAsync(w => w.Id == id, ct))
+        if (!await db.ProjectWorkItems.AnyAsync(w => w.Id == id, ct))
             return Results.NotFound(ApiResponse<object>.Fail("Đầu mục không tồn tại"));
         if (await db.UnitPrices.AnyAsync(p => p.WorkItemId == id && p.PriceType == dto.PriceType && p.EffectiveFrom == dto.EffectiveFrom, ct))
             return Results.BadRequest(ApiResponse<object>.Fail("Đơn giá cho loại/ngày này đã tồn tại"));
@@ -213,7 +213,7 @@ public static class WorkItemEndpoints
         ServerBMCDbContext db, IAuditWriter audit,
         ClaimsPrincipal principal, HttpContext http, CancellationToken ct)
     {
-        var w = await db.WorkItems.FirstOrDefaultAsync(x => x.Id == id, ct);
+        var w = await db.ProjectWorkItems.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (w is null) return Results.NotFound(ApiResponse<object>.Fail("Đầu mục không tồn tại"));
 
         var userId = principal.GetUserId();
@@ -248,7 +248,7 @@ public static class WorkItemEndpoints
         return Results.Ok(ApiResponse<object>.Ok(new { c.Id, warning = warning?.WarningLevel }));
     }
 
-    private static async Task<Warning?> EvaluateCostWarningAsync(ServerBMCDbContext db, int workItemId, WorkItem w, CancellationToken ct)
+    private static async Task<Warning?> EvaluateCostWarningAsync(ServerBMCDbContext db, int workItemId, ProjectWorkItem w, CancellationToken ct)
     {
         var accepted = await db.AcceptedQuantities.Where(a => a.WorkItemId == workItemId)
             .SumAsync(a => (decimal?)a.AcceptedQuantityValue, ct) ?? 0m;
@@ -278,7 +278,7 @@ public static class WorkItemEndpoints
     }
 
     private static async Task<int?> GetProjectIdByWorkItemAsync(ServerBMCDbContext db, int workItemId, CancellationToken ct)
-        => await db.WorkItems.Where(w => w.Id == workItemId)
+        => await db.ProjectWorkItems.Where(w => w.Id == workItemId)
             .Select(w => (int?)w.SubCategory.Category.ProjectLot.ProjectId).FirstOrDefaultAsync(ct);
 
     private static async Task<IResult> DeleteCostAsync(
@@ -311,7 +311,7 @@ public static class WorkItemEndpoints
         ServerBMCDbContext db, IAuditWriter audit,
         ClaimsPrincipal principal, HttpContext http, CancellationToken ct)
     {
-        var w = await db.WorkItems.FirstOrDefaultAsync(x => x.Id == id, ct);
+        var w = await db.ProjectWorkItems.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (w is null) return Results.NotFound(ApiResponse<object>.Fail("Đầu mục không tồn tại"));
 
         var userId = principal.GetUserId();
@@ -352,7 +352,7 @@ public static class WorkItemEndpoints
 
     private static async Task<IResult> ProfitByWorkItemAsync(int workItemId, ServerBMCDbContext db, CancellationToken ct)
     {
-        var w = await db.WorkItems.AsNoTracking().FirstOrDefaultAsync(x => x.Id == workItemId, ct);
+        var w = await db.ProjectWorkItems.AsNoTracking().FirstOrDefaultAsync(x => x.Id == workItemId, ct);
         if (w is null) return Results.NotFound();
 
         var dto = await ComputeWorkItemProfitAsync(db, workItemId, w, ct);
@@ -360,7 +360,7 @@ public static class WorkItemEndpoints
     }
 
     private static async Task<WorkItemProfitDto> ComputeWorkItemProfitAsync(
-        ServerBMCDbContext db, int id, WorkItem w, CancellationToken ct)
+        ServerBMCDbContext db, int id, ProjectWorkItem w, CancellationToken ct)
     {
         var accepted = await db.AcceptedQuantities.Where(a => a.WorkItemId == id)
             .SumAsync(a => (decimal?)a.AcceptedQuantityValue, ct) ?? 0m;
@@ -381,7 +381,7 @@ public static class WorkItemEndpoints
 
     private static async Task<IResult> ProfitByCategoryAsync(int categoryId, ServerBMCDbContext db, CancellationToken ct)
     {
-        var ids = await db.WorkItems.Where(w => w.SubCategory.CategoryId == categoryId)
+        var ids = await db.ProjectWorkItems.Where(w => w.SubCategory.CategoryId == categoryId)
             .Select(w => w.Id).ToListAsync(ct);
         var sum = await AggregateProfitAsync(db, ids, ct);
         return Results.Ok(ApiResponse<ProfitSummaryDto>.Ok(sum with { CategoryId = categoryId }));
@@ -389,7 +389,7 @@ public static class WorkItemEndpoints
 
     private static async Task<IResult> ProfitByLotAsync(int lotId, ServerBMCDbContext db, CancellationToken ct)
     {
-        var ids = await db.WorkItems.Where(w => w.SubCategory.Category.ProjectLotId == lotId)
+        var ids = await db.ProjectWorkItems.Where(w => w.SubCategory.Category.ProjectLotId == lotId)
             .Select(w => w.Id).ToListAsync(ct);
         var sum = await AggregateProfitAsync(db, ids, ct);
         return Results.Ok(ApiResponse<ProfitSummaryDto>.Ok(sum with { LotId = lotId }));
@@ -397,7 +397,7 @@ public static class WorkItemEndpoints
 
     private static async Task<IResult> ProfitByProjectAsync(int projectId, ServerBMCDbContext db, CancellationToken ct)
     {
-        var ids = await db.WorkItems.Where(w => w.SubCategory.Category.ProjectLot.ProjectId == projectId)
+        var ids = await db.ProjectWorkItems.Where(w => w.SubCategory.Category.ProjectLot.ProjectId == projectId)
             .Select(w => w.Id).ToListAsync(ct);
         var sum = await AggregateProfitAsync(db, ids, ct);
         return Results.Ok(ApiResponse<ProfitSummaryDto>.Ok(sum with { ProjectId = projectId }));
@@ -425,7 +425,7 @@ public static class WorkItemEndpoints
 
     private static async Task<IResult> CategoryCostCompareAsync(int categoryId, ServerBMCDbContext db, CancellationToken ct)
     {
-        var workItemIds = await db.WorkItems.Where(w => w.SubCategory.CategoryId == categoryId)
+        var workItemIds = await db.ProjectWorkItems.Where(w => w.SubCategory.CategoryId == categoryId)
             .Select(w => w.Id).ToListAsync(ct);
         if (workItemIds.Count == 0)
             return Results.Ok(ApiResponse<CategoryCostCompareDto>.Ok(new CategoryCostCompareDto(

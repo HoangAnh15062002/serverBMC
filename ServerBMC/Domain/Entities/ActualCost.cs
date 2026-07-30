@@ -17,6 +17,6 @@ public class ActualCost
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    public WorkItem WorkItem { get; set; } = null!;
+    public ProjectWorkItem WorkItem { get; set; } = null!;
     public User Creator { get; set; } = null!;
 }

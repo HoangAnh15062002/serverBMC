@@ -21,5 +21,5 @@ public class SubCategory
 
     public Category Category { get; set; } = null!;
     public User Creator { get; set; } = null!;
-    public ICollection<WorkItem> WorkItems { get; set; } = new List<WorkItem>();
+    public ICollection<ProjectWorkItem> ProjectWorkItems { get; set; } = new List<ProjectWorkItem>();
 }

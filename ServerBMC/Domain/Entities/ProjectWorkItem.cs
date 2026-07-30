@@ -1,6 +1,6 @@
 namespace ServerBMC.Domain.Entities;
 
-public class WorkItem
+public class ProjectWorkItem
 {
     public int Id { get; set; }
     public int SubCategoryId { get; set; }

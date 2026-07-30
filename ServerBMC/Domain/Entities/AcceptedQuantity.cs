@@ -12,6 +12,6 @@ public class AcceptedQuantity
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public WorkItem WorkItem { get; set; } = null!;
+    public ProjectWorkItem WorkItem { get; set; } = null!;
     public User Creator { get; set; } = null!;
 }

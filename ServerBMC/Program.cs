@@ -209,6 +209,5 @@ app.MapPaymentPlanEndpoints();
 app.MapReportEndpoints();
 app.MapAuditLogEndpoints();
 app.MapEstimateEndpoints();
-app.MapExcelImportEndpoints();
 
 app.Run();
